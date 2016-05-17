@@ -117,7 +117,7 @@ abstract class CommandAbstract
         $body->seek(0);
     }
 
-    public function send($params)
+    public function send(array $params = [])
     {
         $this->response = null;
         if (!$this->command) {
