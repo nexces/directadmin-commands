@@ -8,6 +8,7 @@
 
 namespace DirectAdminCommands;
 
+use DirectAdminCommands\Exception\BadCredentialsException;
 use GuzzleHttp\Client;
 use GuzzleHttp\Message\ResponseInterface;
 
@@ -97,7 +98,7 @@ abstract class CommandAbstract
                 'X-DirectAdmin'
             ) === 'unauthorized'
         ) {
-            throw new \InvalidArgumentException('Bad credentials!');
+            throw new BadCredentialsException('Bad credentials!');
         }
 
         if ($this->response->getHeader('Content-Type') !== 'text/plain') {
