@@ -44,7 +44,7 @@ class DNSControl extends CommandAbstract
         return $this;
     }
 
-    public function send($params = [])
+    public function send(array $params = [])
     {
         if (!$this->domain) {
             throw new \BadMethodCallException('No domain specified');
