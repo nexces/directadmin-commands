@@ -108,12 +108,11 @@ abstract class CommandAbstract
         $body->seek(0);
         if ($body->read(6) === 'error=' && $body->read(1) !== '0') {
             $body->seek(0);
+            $bodyContents = $body->getContents();
+            $body->seek(0);
             $data = [];
-            parse_str(
-                $body->getContents(),
-                $data
-            );
-            throw new \Exception('Unknown error! ' . print_r($data, 1));
+            parse_str($this->decodeResponse($bodyContents), $data);
+            throw new Exception\GenericException('Unknown error!', 0, null, $bodyContents, $data);
         }
         $body->seek(0);
     }
@@ -137,5 +136,12 @@ abstract class CommandAbstract
     protected function setCommand($command)
     {
         $this->command = $command;
+    }
+    
+    protected function decodeResponse($string)
+    {
+        $string = preg_replace_callback('/&#([0-9]{2})/', function($val) {
+            return chr($val[1]); }, $string);
+        return $string;
     }
 }
