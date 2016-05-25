@@ -18,7 +18,7 @@ abstract class CommandAbstract
      * @var \GuzzleHttp\Client
      */
     protected $client;
-    
+
     /**
      * @var ResponseInterface
      */
@@ -28,7 +28,14 @@ abstract class CommandAbstract
      * @var string
      */
     protected $command;
-    
+
+    /**
+     * Default method to use in calls
+     *
+     * @var string
+     */
+    protected $method = 'GET';
+
     private $url;
     private $adminName;
     private $adminPassword;
@@ -77,10 +84,10 @@ abstract class CommandAbstract
                 $this->adminPassword
             ]
         );
-        
+
         return $this;
     }
-    
+
     /**
      * @return \GuzzleHttp\Message\ResponseInterface
      */
@@ -89,14 +96,32 @@ abstract class CommandAbstract
         return $this->response;
     }
 
+    public function send(array $params = [])
+    {
+        $this->response = null;
+        if (!$this->command) {
+            throw new \BadMethodCallException('No command specified');
+        }
+        $this->response = $this->client->send(
+            $this->client->createRequest(
+                $this->method,
+                '/' . $this->command,
+                [
+                    'query' => $params
+                ]
+            )
+        );
+
+        $this->validateResponse();
+    }
+
     /**
      * @throws \Exception
      */
     protected function validateResponse()
     {
-        if ($this->response->getHeader('Content-Type') === 'text/html' && $this->response->getHeader(
-                'X-DirectAdmin'
-            ) === 'unauthorized'
+        if ($this->response->getHeader('Content-Type') === 'text/html' 
+            && $this->response->getHeader('X-DirectAdmin') === 'unauthorized'
         ) {
             throw new BadCredentialsException('Bad credentials!');
         }
@@ -117,31 +142,21 @@ abstract class CommandAbstract
         $body->seek(0);
     }
 
-    public function send(array $params = [])
-    {
-        $this->response = null;
-        if (!$this->command) {
-            throw new \BadMethodCallException('No command specified');
-        }
-        $this->response = $this->client->get(
-            '/' . $this->command,
-            [
-                'query' => $params
-            ]
-        );
-
-        $this->validateResponse();
-    }
-    
     protected function setCommand($command)
     {
         $this->command = $command;
     }
-    
+
     protected function decodeResponse($string)
     {
-        $string = preg_replace_callback('/&#([0-9]{2})/', function($val) {
-            return chr($val[1]); }, $string);
+        $string = preg_replace_callback(
+            '/&#([0-9]{2})/',
+            function ($val) {
+                return chr($val[1]);
+            },
+            $string
+        );
+
         return $string;
     }
 }
