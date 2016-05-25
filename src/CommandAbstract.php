@@ -9,6 +9,7 @@
 namespace DirectAdminCommands;
 
 use DirectAdminCommands\Exception\BadCredentialsException;
+use DirectAdminCommands\Exception\MalformedRequestException;
 use GuzzleHttp\Client;
 use GuzzleHttp\Message\ResponseInterface;
 
@@ -127,14 +128,16 @@ abstract class CommandAbstract
         }
 
         if ($this->response->getHeader('Content-Type') !== 'text/plain') {
-            throw new \UnexpectedValueException('Unknown error! ' . print_r($this->response, 1));
+            throw new MalformedRequestException('We\'re not talking to API!', 0, null, $this->response);
         }
         $body = $this->response->getBody();
         $body->seek(0);
-        if ($body->read(6) === 'error=' && $body->read(1) !== '0') {
-            $body->seek(0);
-            $bodyContents = $body->getContents();
-            $body->seek(0);
+        $bodyContents = $body->getContents();
+        $body->seek(0);
+        if (substr($bodyContents, 0, 6) === 'error='
+            && substr($bodyContents, 6, 1) !== '0'
+            && substr($bodyContents, 6, 3) !== '%30'
+        ) {
             $data = [];
             parse_str($this->decodeResponse($bodyContents), $data);
             throw new Exception\GenericException('Unknown error!', 0, null, $bodyContents, $data);
