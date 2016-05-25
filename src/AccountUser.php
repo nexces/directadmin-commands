@@ -19,15 +19,18 @@ class AccountUser extends CommandAbstract
     }
 
     /**
-     * @param      $username
-     * @param      $email
-     * @param      $password
-     * @param      $domain
-     * @param      $package
-     * @param      $ip
-     * @param bool $notify
+     * @param string $username
+     * @param string $email
+     * @param string $password
+     * @param string $domain
+     * @param string $package
+     * @param string $ip
+     * @param bool   $notify
      *
      * @return bool
+     * @throws \DirectAdminCommands\Exception\BadCredentialsException
+     * @throws \DirectAdminCommands\Exception\GenericException
+     * @throws \DirectAdminCommands\Exception\MalformedRequestException
      */
     public function create($username, $email, $password, $domain, $package, $ip, $notify = true)
     {
@@ -45,10 +48,19 @@ class AccountUser extends CommandAbstract
                 'notify'   => $notify ? 'yes' : 'no'
             ]
         );
+        $this->validateResponse();
 
         return true;
     }
 
+    /**
+     * @param string $username
+     *
+     * @return bool
+     * @throws \DirectAdminCommands\Exception\BadCredentialsException
+     * @throws \DirectAdminCommands\Exception\GenericException
+     * @throws \DirectAdminCommands\Exception\MalformedRequestException
+     */
     public function delete($username)
     {
         $this->send(
@@ -57,6 +69,7 @@ class AccountUser extends CommandAbstract
                 'username' => $username
             ]
         );
+        $this->validateResponse();
 
         return true;
     }
