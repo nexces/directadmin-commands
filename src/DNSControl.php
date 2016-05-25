@@ -9,6 +9,9 @@
 namespace DirectAdminCommands;
 
 
+use DirectAdminCommands\ValueObject\DNSRecord;
+use DirectAdminCommands\ValueObject\DNSZoneData;
+
 class DNSControl extends CommandAbstract
 {
     private $supportedRecords = [
@@ -53,7 +56,9 @@ class DNSControl extends CommandAbstract
         parent::send($params);
     }
 
-
+    /**
+     * @return DNSZoneData
+     */
     public function getRecords()
     {
         $this->send();
@@ -61,72 +66,60 @@ class DNSControl extends CommandAbstract
         $body = $this->response->getBody()
             ->getContents();
 
-        // data parse
-        $domainRecords = array_fill_keys($this->supportedRecords, []);
-
-        foreach ($domainRecords as $domainRecordType => $domainRecordTypeContent) {
-            $regex = '/(.*)\s+\d+\s+IN\s+' . $domainRecordType . '\s+(.*)/';
-            $matches = [];
-            preg_match_all($regex, $body, $matches, PREG_SET_ORDER);
-            foreach ($matches as $key => $match) {
-                $domainRecords[$domainRecordType][$key] = [
-                    'key'   => strtolower($domainRecordType) . 'recs' . $key,
-                    'name'  => $match[1],
-                    'value' => $match[2]
-                ];
-            }
-        }
-
-        return $domainRecords;
+        $zone = new DNSZoneData($body);
+        return $zone;
     }
 
-    public function addRecord($type, $name, $value)
+    public function addRecord(DNSRecord $record)
     {
-        $type = strtoupper($type);
-        if (!in_array($type, $this->supportedRecords)) {
+        if (!in_array($record->getType(), $this->supportedRecords)) {
             throw new \InvalidArgumentException('Unsupported record type');
         }
 
         $this->send(
             [
                 'action' => 'add',
-                'type'   => $type,
-                'name'   => $name,
-                'value'  => $value
+                'type'   => $record->getType(),
+                'name'   => $record->getName(),
+                'value'  => $record->getValue()
             ]
         );
 
         return true;
     }
 
-    public function deleteRecord($type, $name, $value)
+    public function deleteRecord(DNSRecord $record)
     {
-        $type = strtoupper($type);
-        if (!in_array($type, $this->supportedRecords)) {
+        if (!in_array($record->getType(), $this->supportedRecords)) {
             throw new \InvalidArgumentException('Unsupported record type');
         }
+        return $this->deleteRecords([$record]);
+    }
 
-        // query records
-        $records = $this->getRecords();
-
-        $record = false;
-
-        // find the one we're trying to drop
-        foreach ($records[$type] as $record) {
-            if ($record['name'] == $name && $record['value'] == $value) {
-                break;
-            }
+    /**
+     * @param DNSRecord[] $records
+     *
+     * @return bool
+     */
+    public function deleteRecords($records)
+    {
+        if (!is_array($records)) {
+            throw new \UnexpectedValueException('Array required but "' . gettype($records) . '" was given');
         }
-        if (!is_array($record)) {
-            throw new \OutOfBoundsException('Record not found');
+        if (count($records) === 0) {
+            return true;
         }
         $params = [
-            'action'       => 'select',
-            $record['key'] =>
-                    'name=' . $record['name'] . '&' .
-                    'value=' . $record['value']
+            'action' => 'select'
         ];
+        foreach ($records as $record) {
+            if ($record->getKey() === '') {
+                throw new \UnexpectedValueException('Provided record does not have required "key" value set');
+            }
+            $params[$record->getKey()] = 'name=' . $record->getName() . '&' . 'value=' . $record->getValue();
+        }
         $this->send($params);
+        $this->validateResponse();
 
         return true;
     }
