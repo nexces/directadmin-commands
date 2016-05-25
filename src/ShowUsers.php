@@ -18,12 +18,17 @@ class ShowUsers extends CommandAbstract
 
         return $this;
     }
-    
+
+    /**
+     * @return array
+     */
     public function get()
     {
         $this->send();
         $data = [];
-        parse_str($this->response->getBody()->getContents(), $data);
+        $bodyContents = $this->response->getBody()->getContents();
+        $bodyContents = $this->decodeResponse($bodyContents);
+        parse_str($bodyContents, $data);
         if (array_key_exists('list', $data)) {
             $data = $data['list'];
         }
