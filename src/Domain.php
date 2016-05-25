@@ -115,6 +115,33 @@ class Domain extends CommandAbstract
     }
 
     /**
+     * Issues CMD_API_CHANGE_DOMAIN to change domain name
+     * https://www.directadmin.com/features.php?id=694
+     *
+     * @param $domain
+     * @param $newName
+     *
+     * @return bool
+     * @throws \DirectAdminCommands\Exception\BadCredentialsException
+     * @throws \DirectAdminCommands\Exception\GenericException
+     * @throws \DirectAdminCommands\Exception\MalformedRequestException
+     */
+    public function rename($domain, $newName)
+    {
+        $this->command = 'CMD_API_CHANGE_DOMAIN';
+        $this->method = 'POST';
+        $this->send(
+            [
+                'old_domain' => $domain,
+                'new_domain' => $newName
+            ]
+        );
+        $this->validateResponse();
+
+        return true;
+    }
+
+    /**
      * Issues CMD_API_DOMAIN to delete domain
      *
      * @param string $domain
