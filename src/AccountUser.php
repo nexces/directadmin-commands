@@ -34,6 +34,7 @@ class AccountUser extends CommandAbstract
         $this->send(
             [
                 'action'   => 'create',
+                'add'      => 'Submit',
                 'username' => $username,
                 'email'    => $email,
                 'passwd'   => $password,
