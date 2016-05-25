@@ -140,7 +140,7 @@ abstract class CommandAbstract
         ) {
             $data = [];
             parse_str($this->decodeResponse($bodyContents), $data);
-            throw new Exception\GenericException('Unknown error!', 0, null, $bodyContents, $data);
+            throw new Exception\GenericException('Unknown error!', 0, null, $this->response, $bodyContents, $data);
         }
         $body->seek(0);
     }
