@@ -67,6 +67,7 @@ class DNSControl extends CommandAbstract
             ->getContents();
 
         $zone = new DNSZoneData($body);
+
         return $zone;
     }
 
@@ -75,15 +76,27 @@ class DNSControl extends CommandAbstract
         if (!in_array($record->getType(), $this->supportedRecords)) {
             throw new \InvalidArgumentException('Unsupported record type');
         }
-
-        $this->send(
-            [
-                'action' => 'add',
-                'type'   => $record->getType(),
-                'name'   => $record->getName(),
-                'value'  => $record->getValue()
-            ]
-        );
+        if ($record->getType() === 'MX') {
+            list($val1, $val2) = explode(' ', $record->getValue());
+            $this->send(
+                [
+                    'action'   => 'add',
+                    'type'     => $record->getType(),
+                    'name'     => $record->getName(),
+                    'value'    => $val1,
+                    'mx_value' => $val2
+                ]
+            );
+        } else {
+            $this->send(
+                [
+                    'action' => 'add',
+                    'type'   => $record->getType(),
+                    'name'   => $record->getName(),
+                    'value'  => $record->getValue()
+                ]
+            );
+        }
 
         return true;
     }
@@ -93,6 +106,7 @@ class DNSControl extends CommandAbstract
         if (!in_array($record->getType(), $this->supportedRecords)) {
             throw new \InvalidArgumentException('Unsupported record type');
         }
+
         return $this->deleteRecords([$record]);
     }
 
