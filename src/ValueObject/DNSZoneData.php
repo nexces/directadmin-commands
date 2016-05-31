@@ -78,6 +78,23 @@ class DNSZoneData
     }
 
     /**
+     * Returns records matching given keys
+     * @param $keys string[]
+     *
+     * @return DNSRecord[]
+     */
+    public function getRecordsByKeys($keys)
+    {
+        $ret = [];
+        foreach ($this->records as $record) {
+            if (in_array($record->getKey(), $keys)) {
+                $ret[] = $record;
+            }
+        }
+        return $ret;
+    }
+
+    /**
      * @return \DirectAdminCommands\ValueObject\DNSRecord[]
      */
     public function getAllRecords()
