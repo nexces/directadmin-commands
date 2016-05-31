@@ -32,6 +32,16 @@ class DNSZoneData
      */
     private $records = [];
 
+    /**
+     * @var int
+     */
+    private $ttl;
+
+    /**
+     * @var int
+     */
+    private $defaultTtl;
+
 
     /**
      * DNSZoneData constructor.
@@ -43,16 +53,29 @@ class DNSZoneData
         $this->zoneData = $zoneData;
 
         foreach ($this->supportedRecords as $domainRecordType) {
-            $regex = '/(.*)\s+\d+\s+IN\s+' . $domainRecordType . '\s+(.*)/';
+            $regex = '/(.*)\s+(\d+)\s+IN\s+' . $domainRecordType . '\s+(.*)/';
             $matches = [];
             preg_match_all($regex, $zoneData, $matches, PREG_SET_ORDER);
             foreach ($matches as $key => $match) {
                 $record = new DNSRecord(
-                    $domainRecordType, $match[1], $match[2], strtolower($domainRecordType) . 'recs' . $key
+                    $domainRecordType, $match[1], $match[3], strtolower($domainRecordType) . 'recs' . $key
                 );
                 $this->records[] = $record;
+                $this->ttl = $match[2];
             }
         }
+
+        $matches = [];
+        preg_match('/\$TTL\s+(\d+)/', $zoneData, $matches);
+        $this->defaultTtl = $matches[1];
+    }
+
+    /**
+     * @return int
+     */
+    public function getTtl()
+    {
+        return $this->ttl;
     }
 
     /**

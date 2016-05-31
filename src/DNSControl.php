@@ -137,4 +137,22 @@ class DNSControl extends CommandAbstract
 
         return true;
     }
+
+    public function setTtl($ttl = null)
+    {
+        $params = [
+            'action' => 'ttl'
+        ];
+        if (is_int($ttl)) {
+            $params['ttl_select'] = 'custom';
+            $params['ttl'] = $ttl;
+        } else {
+            $params['ttl_select'] = 'default';
+        }
+
+        $this->send($params);
+        $this->validateResponse();
+
+        return true;
+    }
 }
