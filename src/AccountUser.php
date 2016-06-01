@@ -9,6 +9,7 @@
 namespace DirectAdminCommands;
 
 use DirectAdminCommands\Exception\BadCredentialsException;
+use DirectAdminCommands\Exception\GenericException;
 
 class AccountUser extends CommandAbstract
 {
@@ -73,7 +74,7 @@ class AccountUser extends CommandAbstract
     /**
      * Tests wheather provided credentials are valid
      * https://www.directadmin.com/features.php?id=530
-     * 
+     *
      * @return bool
      */
     public function loginTest()
@@ -85,5 +86,31 @@ class AccountUser extends CommandAbstract
         } catch (BadCredentialsException $e) {
             return false;
         }
+    }
+
+    /**
+     * Checks whether account exists
+     * https://www.directadmin.com/features.php?id=1274
+     *
+     * @param $accountName string
+     *
+     * @return bool
+     * @throws \DirectAdminCommands\Exception\GenericException
+     */
+    public function exists($accountName)
+    {
+        $this->command = 'CMD_API_USER_EXISTS';
+        $this->send(
+            [
+                'user' => $accountName
+            ]
+        );
+        $bodyContents = $this->response->getBody()->getContents();
+        $data = [];
+        parse_str($this->decodeResponse($bodyContents), $data);
+        if (!array_key_exists('exists', $data)) {
+            throw new GenericException('Malformed response', 0, null, $this->response, $bodyContents, $data);
+        }
+        return $data['exists'] == 1;
     }
 }
