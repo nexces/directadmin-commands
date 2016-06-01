@@ -8,16 +8,10 @@
 
 namespace DirectAdminCommands;
 
+use DirectAdminCommands\Exception\BadCredentialsException;
+
 class AccountUser extends CommandAbstract
 {
-    public function __construct($url, $adminName, $adminPassword, $clientName = null)
-    {
-        $this->command = 'CMD_API_ACCOUNT_USER';
-        parent::__construct($url, $adminName, $adminPassword, $clientName);
-
-        return $this;
-    }
-
     /**
      * @param string $username
      * @param string $email
@@ -34,6 +28,8 @@ class AccountUser extends CommandAbstract
      */
     public function create($username, $email, $password, $domain, $package, $ip, $notify = true)
     {
+        $this->command = 'CMD_API_ACCOUNT_USER';
+
         $this->send(
             [
                 'action'   => 'create',
@@ -48,7 +44,6 @@ class AccountUser extends CommandAbstract
                 'notify'   => $notify ? 'yes' : 'no'
             ]
         );
-        $this->validateResponse();
 
         return true;
     }
@@ -63,14 +58,32 @@ class AccountUser extends CommandAbstract
      */
     public function delete($username)
     {
+        $this->command = 'CMD_API_ACCOUNT_USER';
+
         $this->send(
             [
                 'action'   => 'delete',
                 'username' => $username
             ]
         );
-        $this->validateResponse();
 
         return true;
+    }
+
+    /**
+     * Tests wheather provided credentials are valid
+     * https://www.directadmin.com/features.php?id=530
+     * 
+     * @return bool
+     */
+    public function loginTest()
+    {
+        $this->command = 'CMD_API_LOGIN_TEST';
+        try {
+            $this->send([]);
+            return true;
+        } catch (BadCredentialsException $e) {
+            return false;
+        }
     }
 }
