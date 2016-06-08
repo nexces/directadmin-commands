@@ -192,6 +192,38 @@ class Domain extends CommandAbstract
 
     /**
      * Returns array of owners of domains [domain_name => owner]
+     *
+     * dump the /etc/virtual/domainowners file.
+     *
+     * Outputs a standard list:
+     * domain.com=user&domain2.com=user2&...
+     *
+     * if an Admin calls it, he'll get all the domains.
+     *
+     * If a Reseller calls it, he'll get the domains/users that he controls (including himself).
+     *
+     * @return array
+     */
+    public function owners()
+    {
+        $this->command = 'CMD_API_DOMAIN_OWNERS';
+        $this->send([]);
+        $data = [];
+        $bodyContents = $this->response->getBody()
+            ->getContents();
+        $bodyContents = $this->decodeResponse($bodyContents);
+        parse_str($bodyContents, $data);
+        $fixedDomains = [];
+        foreach ($data as $key => $value) {
+            $fixedDomains[str_replace('_', '.', $key)] = $value;
+        }
+
+        return $fixedDomains;
+    }
+
+    /**
+     * Returns owner of a given domain
+     *
      * Relating to:
      * http://www.directadmin.com/features.php?id=579
      *
@@ -206,20 +238,15 @@ class Domain extends CommandAbstract
      * If a domain does not exist, an error is returned, eg:
      * error=1&text=Cannot find that domain&details=
      * https://www.directadmin.com/features.php?id=1684
+     * @param string $domain
      *
-     * @param string [$domain] optional name of a single domain to check
-     *
-     * @return array
+     * @return string
      */
-    public function owners($domain = null)
-    {
+    public function owner($domain) {
         $this->command = 'CMD_API_DOMAIN_OWNERS';
-        $params = [];
-        if (is_string($domain) && strlen($domain) > 0) {
-            $params = [
-                'domain' => $domain
-            ];
-        }
+        $params = [
+            'domain' => $domain
+        ];
         $this->send($params);
         $data = [];
         $bodyContents = $this->response->getBody()
@@ -230,7 +257,6 @@ class Domain extends CommandAbstract
         foreach ($data as $key => $value) {
             $fixedDomains[str_replace('_', '.', $key)] = $value;
         }
-
-        return $fixedDomains;
+        return $fixedDomains[$domain];
     }
 }
