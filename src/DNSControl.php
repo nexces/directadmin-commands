@@ -29,7 +29,6 @@ class DNSControl extends CommandAbstract
 
     public function __construct($url, $adminName, $adminPassword, $clientName = null)
     {
-        $this->command = 'CMD_API_DNS_CONTROL';
         parent::__construct($url, $adminName, $adminPassword, $clientName);
 
         return $this;
@@ -57,10 +56,13 @@ class DNSControl extends CommandAbstract
     }
 
     /**
-     * @return DNSZoneData
+     * Returns all zone data
+     * @return \DirectAdminCommands\ValueObject\DNSZoneData
      */
     public function getRecords()
     {
+        $this->command = 'CMD_API_DNS_CONTROL';
+
         $this->send();
 
         $body = $this->response->getBody()
@@ -71,8 +73,16 @@ class DNSControl extends CommandAbstract
         return $zone;
     }
 
+    /**
+     * Adds new record
+     * @param \DirectAdminCommands\ValueObject\DNSRecord $record
+     *
+     * @return bool
+     */
     public function addRecord(DNSRecord $record)
     {
+        $this->command = 'CMD_API_DNS_CONTROL';
+
         if (!in_array($record->getType(), $this->supportedRecords)) {
             throw new \InvalidArgumentException('Unsupported record type');
         }
@@ -101,6 +111,12 @@ class DNSControl extends CommandAbstract
         return true;
     }
 
+    /**
+     * Deletes single record
+     * @param \DirectAdminCommands\ValueObject\DNSRecord $record
+     *
+     * @return bool
+     */
     public function deleteRecord(DNSRecord $record)
     {
         if (!in_array($record->getType(), $this->supportedRecords)) {
@@ -111,12 +127,18 @@ class DNSControl extends CommandAbstract
     }
 
     /**
-     * @param DNSRecord[] $records
+     * Deletes multiple records in one call
+     * @param \DirectAdminCommands\ValueObject\DNSRecord[] $records
      *
      * @return bool
+     * @throws \DirectAdminCommands\Exception\BadCredentialsException
+     * @throws \DirectAdminCommands\Exception\GenericException
+     * @throws \DirectAdminCommands\Exception\MalformedRequestException
      */
     public function deleteRecords($records)
     {
+        $this->command = 'CMD_API_DNS_CONTROL';
+
         if (!is_array($records)) {
             throw new \UnexpectedValueException('Array required but "' . gettype($records) . '" was given');
         }
@@ -138,8 +160,19 @@ class DNSControl extends CommandAbstract
         return true;
     }
 
+    /**
+     * Sets TTL for zone
+     * @param int|null $ttl
+     *
+     * @return bool
+     * @throws \DirectAdminCommands\Exception\BadCredentialsException
+     * @throws \DirectAdminCommands\Exception\GenericException
+     * @throws \DirectAdminCommands\Exception\MalformedRequestException
+     */
     public function setTtl($ttl = null)
     {
+        $this->command = 'CMD_API_DNS_CONTROL';
+
         $params = [
             'action' => 'ttl'
         ];
@@ -154,5 +187,78 @@ class DNSControl extends CommandAbstract
         $this->validateResponse();
 
         return true;
+    }
+
+    /**
+     * Checks whether domain name is configured in named.conf - requires admin privileges
+     * CMD_API_DNS_ADMIN
+     * method: GET or POST
+     *
+     * domain=domain.com
+     * action=exists
+     *
+     * result: exists=1 or exists=0
+     * else error=1&details=some text
+     *
+     *
+     * Note:
+     * This checks the dns (named.conf), so it's only looking to see if the zone exists.
+     * The domain itself may not be on the server.
+     *
+     * Also, if the Multi Server Setup is enabled, and "Domain Check" is enabled, this will also check the dns in all remote servers specific on the M.S.S. page.
+     * https://www.directadmin.com/features.php?id=532
+     * 
+     * @param $domain
+     *
+     * @return bool
+     * @throws \DirectAdminCommands\Exception\BadCredentialsException
+     * @throws \DirectAdminCommands\Exception\GenericException
+     * @throws \DirectAdminCommands\Exception\MalformedRequestException
+     */
+    public function exists($domain)
+    {
+        $this->setCommand('CMD_API_DNS_ADMIN');
+        $this->send(
+            [
+                'domain' => $domain,
+                'action' => 'exists'
+            ]
+        );
+        $this->validateResponse();
+        $bodyContents = $this->response->getBody()->getContents();
+        $data = [];
+        parse_str($this->decodeResponse($bodyContents), $data);
+        return $data['exists'] === "1";
+    }
+
+    /**
+     * Ability to pass the entire zone file (domain.com.db).
+     *
+     * CMD_API_DNS_ADMIN
+     * method: POST
+     *
+     * GET values:
+     * domain=domain.com
+     * action=rawsave
+     *
+     * POST value:
+     *
+     * the plaintext domain.com.db file.
+     *
+     * This will not trigger the dns_write_post.sh.
+     * It will also not trigger dns clustering (to prevent loops)
+     *
+     * This function will also add the domain to the named.conf if it doesn't exist
+     * https://www.directadmin.com/features.php?id=531
+     *
+     * @param $domain
+     * @param $zoneContents
+     *
+     * @throws \Exception
+     */
+    public function rawSave($domain, $zoneContents)
+    {
+        // TODO implement DNSControl->rawSave()
+        throw new \Exception('Function not implemented! ' . $domain . $zoneContents);
     }
 }
