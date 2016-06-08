@@ -208,19 +208,16 @@ class DNSControl extends CommandAbstract
      * Also, if the Multi Server Setup is enabled, and "Domain Check" is enabled, this will also check the dns in all remote servers specific on the M.S.S. page.
      * https://www.directadmin.com/features.php?id=532
      * 
-     * @param $domain
-     *
      * @return bool
      * @throws \DirectAdminCommands\Exception\BadCredentialsException
      * @throws \DirectAdminCommands\Exception\GenericException
      * @throws \DirectAdminCommands\Exception\MalformedRequestException
      */
-    public function exists($domain)
+    public function exists()
     {
         $this->setCommand('CMD_API_DNS_ADMIN');
         $this->send(
             [
-                'domain' => $domain,
                 'action' => 'exists'
             ]
         );
