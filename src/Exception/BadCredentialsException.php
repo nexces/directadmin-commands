@@ -9,6 +9,11 @@
 
 namespace DirectAdminCommands\Exception;
 
+/**
+ * Class BadCredentialsException
+ *
+ * @package DirectAdminCommands\Exception
+ */
 class BadCredentialsException extends \Exception
 {
 

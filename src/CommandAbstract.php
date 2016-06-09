@@ -133,7 +133,12 @@ abstract class CommandAbstract
         if ($this->response->getHeader('Content-Type') === 'text/html' 
             && $this->response->getHeader('X-DirectAdmin') === 'unauthorized'
         ) {
-            throw new BadCredentialsException('Bad credentials!');
+            throw new BadCredentialsException(
+                sprintf(
+                    'Bad credentials! Could not login as "%s" with "***"',
+                    $this->clientName ? join('|', [$this->adminName, $this->clientName]) : $this->adminName
+                )
+            );
         }
 
         if ($this->response->getHeader('Content-Type') !== 'text/plain') {

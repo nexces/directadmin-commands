@@ -5,9 +5,10 @@ php:
   - '7.0'
   - 'hhvm'
 before_script:
-  - curl --version
+  - phpenv config-rm xdebug.ini
   - composer self-update
   - composer install --no-interaction
+  - phpenv config-add xdebug.ini
 
 script:
   - ./vendor/bin/phpunit -v
