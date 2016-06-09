@@ -33,5 +33,26 @@ function generateTemporaryPassword()
 !defined('TEST_RESELLER_DOMAIN') && define('TEST_RESELLER_DOMAIN', 'reseller.test.dev');
 !defined('TEST_USER_DOMAIN') && define('TEST_USER_DOMAIN', 'user.test.dev');
 
+if (!defined('DIRECTADMIN_URL')) {
+    if (!empty(getenv('DIRECTADMIN_URL'))) {
+        define('DIRECTADMIN_URL', getenv('DIRECTADMIN_URL'));
+    } else {
+        define('DIRECTADMIN_URL', 'https://www.directadmin.com:2222');
+    }
+}
+if (!defined('MASTER_ADMIN_USERNAME')) {
+    if (!empty(getenv('MASTER_ADMIN_USERNAME'))) {
+        define('MASTER_ADMIN_USERNAME', getenv('MASTER_ADMIN_USERNAME'));
+    } else {
+        define('MASTER_ADMIN_USERNAME', 'admin');
+    }
+}
+if (!defined('MASTER_ADMIN_PASSWORD')) {
+    if (!empty(getenv('MASTER_ADMIN_PASSWORD'))) {
+        define('MASTER_ADMIN_PASSWORD', getenv('MASTER_ADMIN_PASSWORD'));
+    } else {
+        define('MASTER_ADMIN_PASSWORD', 'demo');
+    }
+}
 // Include composer autoload
 require __DIR__ . '/../vendor/autoload.php';
