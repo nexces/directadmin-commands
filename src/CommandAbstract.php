@@ -135,8 +135,9 @@ abstract class CommandAbstract
         ) {
             throw new BadCredentialsException(
                 sprintf(
-                    'Bad credentials! Could not login as "%s" with "***"',
-                    $this->clientName ? join('|', [$this->adminName, $this->clientName]) : $this->adminName
+                    'Bad credentials! Could not login as "%s" with "***" at "%s"',
+                    $this->clientName ? join('|', [$this->adminName, $this->clientName]) : $this->adminName,
+                    $this->url
                 )
             );
         }

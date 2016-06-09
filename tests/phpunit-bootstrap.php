@@ -34,22 +34,25 @@ function generateTemporaryPassword()
 !defined('TEST_USER_DOMAIN') && define('TEST_USER_DOMAIN', 'user.test.dev');
 
 if (!defined('DIRECTADMIN_URL')) {
-    if (!empty(getenv('DIRECTADMIN_URL'))) {
-        define('DIRECTADMIN_URL', getenv('DIRECTADMIN_URL'));
+    $val = getenv('DIRECTADMIN_URL');
+    if (!empty($val)) {
+        define('DIRECTADMIN_URL', $val);
     } else {
         define('DIRECTADMIN_URL', 'https://www.directadmin.com:2222');
     }
 }
 if (!defined('MASTER_ADMIN_USERNAME')) {
-    if (!empty(getenv('MASTER_ADMIN_USERNAME'))) {
-        define('MASTER_ADMIN_USERNAME', getenv('MASTER_ADMIN_USERNAME'));
+    $val = getenv('MASTER_ADMIN_USERNAME');
+    if (!empty($val)) {
+        define('MASTER_ADMIN_USERNAME', $val);
     } else {
         define('MASTER_ADMIN_USERNAME', 'admin');
     }
 }
 if (!defined('MASTER_ADMIN_PASSWORD')) {
-    if (!empty(getenv('MASTER_ADMIN_PASSWORD'))) {
-        define('MASTER_ADMIN_PASSWORD', getenv('MASTER_ADMIN_PASSWORD'));
+    $val = getenv('MASTER_ADMIN_PASSWORD');
+    if (!empty($val)) {
+        define('MASTER_ADMIN_PASSWORD', $val);
     } else {
         define('MASTER_ADMIN_PASSWORD', 'demo');
     }
