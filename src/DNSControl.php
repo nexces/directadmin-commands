@@ -12,6 +12,11 @@ namespace DirectAdminCommands;
 use DirectAdminCommands\ValueObject\DNSRecord;
 use DirectAdminCommands\ValueObject\DNSZoneData;
 
+/**
+ * Class DNSControl
+ *
+ * @package DirectAdminCommands
+ */
 class DNSControl extends CommandAbstract
 {
     private $supportedRecords = [
@@ -27,6 +32,14 @@ class DNSControl extends CommandAbstract
 
     private $domain;
 
+    /**
+     * DNSControl constructor.
+     *
+     * @param string $url
+     * @param string $adminName
+     * @param string $adminPassword
+     * @param null   $clientName
+     */
     public function __construct($url, $adminName, $adminPassword, $clientName = null)
     {
         parent::__construct($url, $adminName, $adminPassword, $clientName);
@@ -46,6 +59,9 @@ class DNSControl extends CommandAbstract
         return $this;
     }
 
+    /**
+     * @param array $params
+     */
     public function send(array $params = [])
     {
         if (!$this->domain) {
@@ -215,7 +231,7 @@ class DNSControl extends CommandAbstract
      */
     public function exists()
     {
-        $this->setCommand('CMD_API_DNS_ADMIN');
+        $this->command = 'CMD_API_DNS_ADMIN';
         $this->send(
             [
                 'action' => 'exists'

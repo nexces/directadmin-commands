@@ -10,7 +10,9 @@
     }
   ],
   "require": {
-    "guzzlehttp/guzzle": "5.3.0"
+    "guzzlehttp/guzzle": "5.3.0",
+    "phpunit/phpunit": "5.4.4",
+    "satooshi/php-coveralls": "v1.0.1"
   },
   "autoload": {
     "psr-4": {

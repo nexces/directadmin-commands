@@ -13,6 +13,11 @@ use DirectAdminCommands\Exception\MalformedRequestException;
 use GuzzleHttp\Client;
 use GuzzleHttp\Message\ResponseInterface;
 
+/**
+ * Class CommandAbstract
+ *
+ * @package DirectAdminCommands
+ */
 abstract class CommandAbstract
 {
     /**
@@ -75,6 +80,11 @@ abstract class CommandAbstract
         return $this;
     }
 
+    /**
+     * @param $clientName
+     *
+     * @return $this
+     */
     public function impersonate($clientName)
     {
         $this->clientName = $clientName;
@@ -90,13 +100,12 @@ abstract class CommandAbstract
     }
 
     /**
-     * @return \GuzzleHttp\Message\ResponseInterface
+     * @param array $params
+     *
+     * @throws \DirectAdminCommands\Exception\BadCredentialsException
+     * @throws \DirectAdminCommands\Exception\GenericException
+     * @throws \DirectAdminCommands\Exception\MalformedRequestException
      */
-    public function getRawResponse()
-    {
-        return $this->response;
-    }
-
     public function send(array $params = [])
     {
         $this->response = null;
@@ -140,16 +149,23 @@ abstract class CommandAbstract
         ) {
             $data = [];
             parse_str($this->decodeResponse($bodyContents), $data);
-            throw new Exception\GenericException('Unknown error!', 0, null, $this->response, $bodyContents, $data);
+            throw new Exception\GenericException(
+                'Unknown error! ' . $bodyContents,
+                0,
+                null,
+                $this->response,
+                $bodyContents,
+                $data
+            );
         }
         $body->seek(0);
     }
 
-    protected function setCommand($command)
-    {
-        $this->command = $command;
-    }
-
+    /**
+     * @param $string
+     *
+     * @return mixed
+     */
     protected function decodeResponse($string)
     {
         $string = preg_replace_callback(

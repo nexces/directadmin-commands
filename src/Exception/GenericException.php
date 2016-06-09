@@ -12,6 +12,11 @@ namespace DirectAdminCommands\Exception;
 use Exception;
 use GuzzleHttp\Message\ResponseInterface;
 
+/**
+ * Class GenericException
+ *
+ * @package DirectAdminCommands\Exception
+ */
 class GenericException extends \Exception
 {
     /**
@@ -27,7 +32,17 @@ class GenericException extends \Exception
      * @var ResponseInterface
      */
     private $response = null;
-    
+
+    /**
+     * GenericException constructor.
+     *
+     * @param string                                     $message
+     * @param int                                        $code
+     * @param \Exception|null                            $previous
+     * @param \GuzzleHttp\Message\ResponseInterface|null $response
+     * @param string                                     $rawResponse
+     * @param array                                      $parsedResponse
+     */
     public function __construct($message = '', $code = 0, \Exception $previous = null, ResponseInterface $response = null, $rawResponse = '', $parsedResponse = [])
     {
         $this->response = $response;
