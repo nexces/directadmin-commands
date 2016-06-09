@@ -6,6 +6,15 @@
  * Date: 09.06.16
  * Time: 12:30
  */
+
+/**
+ * Class InvalidSpec
+ */
+class InvalidSpec extends \DirectAdminCommands\ValueObject\AccountSpec {}
+
+/**
+ * Class AccountTest
+ */
 class AccountTest extends PHPUnit_Framework_TestCase
 {
     /**
@@ -16,10 +25,10 @@ class AccountTest extends PHPUnit_Framework_TestCase
     {
         try {
             // Ensure all test accounts are gone
-            $account = new \DirectAdminCommands\Account(DIRECTADMIN_URL, MASTER_ADMIN_USERNAME, MASTER_ADMIN_PASSWORD);
-            $account->delete(USER_USERNAME);
-            $account->delete(RESELLER_USERNAME);
-            $account->delete(ADMIN_USERNAME);
+            $command = new \DirectAdminCommands\Account(DIRECTADMIN_URL, MASTER_ADMIN_USERNAME, MASTER_ADMIN_PASSWORD);
+            $command->delete(USER_USERNAME);
+            $command->delete(RESELLER_USERNAME);
+            $command->delete(ADMIN_USERNAME);
         } catch (\Exception $e) {
             // Silently fail as this is expected behaviour
         }
@@ -27,8 +36,8 @@ class AccountTest extends PHPUnit_Framework_TestCase
 
     public function testCreateAdmin()
     {
-        $account = new \DirectAdminCommands\Account(DIRECTADMIN_URL, MASTER_ADMIN_USERNAME, MASTER_ADMIN_PASSWORD);
-        $result = $account->create(
+        $command = new \DirectAdminCommands\Account(DIRECTADMIN_URL, MASTER_ADMIN_USERNAME, MASTER_ADMIN_PASSWORD);
+        $result = $command->create(
             new \DirectAdminCommands\ValueObject\AdminAccountSpec(
                 ADMIN_USERNAME, TEST_EMAIL, ADMIN_PASSWORD, false
             )
@@ -37,16 +46,34 @@ class AccountTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * @depends testCreateAdmin
+     */
+    public function testAccountExists()
+    {
+        $command = new \DirectAdminCommands\Account(DIRECTADMIN_URL, MASTER_ADMIN_USERNAME, MASTER_ADMIN_PASSWORD);
+        $result = $command->exists(ADMIN_USERNAME);
+        $this->assertTrue($result, 'Could not verify admin account existence');
+    }
+
+    /**
      * @expectedException \DirectAdminCommands\Exception\GenericException
+     * @depends testCreateAdmin
      */
     public function testCreateExistingAdmin()
     {
-        $account = new \DirectAdminCommands\Account(DIRECTADMIN_URL, MASTER_ADMIN_USERNAME, MASTER_ADMIN_PASSWORD);
-        $account->create(
+        $command = new \DirectAdminCommands\Account(DIRECTADMIN_URL, MASTER_ADMIN_USERNAME, MASTER_ADMIN_PASSWORD);
+        $command->create(
             new \DirectAdminCommands\ValueObject\AdminAccountSpec(
                 ADMIN_USERNAME, TEST_EMAIL, ADMIN_PASSWORD, false
             )
         );
+    }
+
+    public function testLoginTest()
+    {
+        $command = new \DirectAdminCommands\Account(DIRECTADMIN_URL, MASTER_ADMIN_USERNAME, '');
+        $result = $command->loginTest();
+        $this->assertFalse($result, 'Sucessfully logged in as master admin WITHOUT PASSWORD!');
     }
 
     /**
@@ -54,10 +81,84 @@ class AccountTest extends PHPUnit_Framework_TestCase
      */
     public function testImpersonateAdmin()
     {
-        $account = new \DirectAdminCommands\Account(DIRECTADMIN_URL, MASTER_ADMIN_USERNAME, MASTER_ADMIN_PASSWORD);
-        $account->impersonate(ADMIN_USERNAME);
-        $result = $account->loginTest();
+        $command = new \DirectAdminCommands\Account(DIRECTADMIN_URL, MASTER_ADMIN_USERNAME, MASTER_ADMIN_PASSWORD);
+        $command->impersonate(ADMIN_USERNAME);
+        $result = $command->loginTest();
         $this->assertTrue($result, 'Could not impersonate admin: ' . ADMIN_USERNAME);
+    }
+
+    /**
+     * @depends testImpersonateAdmin
+     * @expectedException \UnexpectedValueException
+     */
+    public function testInvalidAccountSpec()
+    {
+        $command = new \DirectAdminCommands\Account(DIRECTADMIN_URL, MASTER_ADMIN_USERNAME, MASTER_ADMIN_PASSWORD);
+        $command->impersonate(ADMIN_USERNAME);
+        $invalidAccount = new InvalidSpec('', '', '', false);
+        $command->create($invalidAccount);
+    }
+
+    /**
+     * @depends testImpersonateAdmin
+     */
+    public function testCreateResellerFromParameters()
+    {
+        $resellerData = new \DirectAdminCommands\ValueObject\ResellerCustomAccountSpec(
+            RESELLER_USERNAME,
+            TEST_EMAIL,
+            RESELLER_PASSWORD,
+            false,
+            TEST_RESELLER_DOMAIN,
+            \DirectAdminCommands\ValueObject\ResellerAccountSpec::ACCOUNT_IP_SHARED,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            \DirectAdminCommands\ValueObject\ResellerAccountSpec::CUSTOM_DNS_OFF,
+            false
+        );
+        $command = new \DirectAdminCommands\Account(DIRECTADMIN_URL, MASTER_ADMIN_USERNAME, MASTER_ADMIN_PASSWORD);
+        $command->impersonate(ADMIN_USERNAME);
+        $result = $command->create($resellerData);
+        $this->assertTrue($result);
+    }
+
+    /**
+     * @depends testCreateResellerFromParameters
+     */
+    public function testImpersonateReseller()
+    {
+        $command = new \DirectAdminCommands\Account(DIRECTADMIN_URL, ADMIN_USERNAME, ADMIN_PASSWORD);
+        $command->impersonate(RESELLER_USERNAME);
+        $result = $command->loginTest();
+        $this->assertTrue($result, 'Could not impersonate as reseller');
+    }
+
+    /**
+     * @depends testCreateResellerFromParameters
+     * @depends testImpersonateReseller
+     */
+    public function testDeleteReseller()
+    {
+        $command = new \DirectAdminCommands\Account(DIRECTADMIN_URL, MASTER_ADMIN_USERNAME, MASTER_ADMIN_PASSWORD);
+        $command->impersonate(ADMIN_USERNAME);
+        $command->delete(RESELLER_USERNAME);
     }
 
     /**
@@ -65,8 +166,8 @@ class AccountTest extends PHPUnit_Framework_TestCase
      */
     public function testDeleteAccounts()
     {
-        $account = new \DirectAdminCommands\Account(DIRECTADMIN_URL, MASTER_ADMIN_USERNAME, MASTER_ADMIN_PASSWORD);
-        $result = $account->delete(ADMIN_USERNAME);
+        $command = new \DirectAdminCommands\Account(DIRECTADMIN_URL, MASTER_ADMIN_USERNAME, MASTER_ADMIN_PASSWORD);
+        $result = $command->delete(ADMIN_USERNAME);
         $this->assertTrue($result, 'Could not delete admin account: ' . ADMIN_USERNAME);
     }
 }

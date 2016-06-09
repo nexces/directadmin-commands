@@ -62,6 +62,11 @@ class Account extends CommandAbstract
      */
     public function delete($username)
     {
+        /*
+         * This call is due to bug described at http://forum.directadmin.com/showthread.php?t=39710
+         * CMD_API_SELECT_USERS throws "Unkown Select Command" on any action.
+         * info() gets information about user type and we can use precise command to delete user
+         */
         $user = $this->info($username);
 
         $this->method = 'POST';
