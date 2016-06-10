@@ -79,6 +79,17 @@ class AccountTest extends PHPUnit_Framework_TestCase
     /**
      * @depends testCreateAdmin
      */
+    public function testListAdministrators()
+    {
+        $command = new \DirectAdminCommands\Account(DIRECTADMIN_URL, ADMIN_USERNAME, ADMIN_PASSWORD);
+        $result = $command->listAdmins();
+        $this->assertContains(MASTER_ADMIN_USERNAME, $result, false);
+        $this->assertContains(ADMIN_USERNAME, $result, false);
+    }
+
+    /**
+     * @depends testCreateAdmin
+     */
     public function testImpersonateAdmin()
     {
         $command = new \DirectAdminCommands\Account(DIRECTADMIN_URL, MASTER_ADMIN_USERNAME, MASTER_ADMIN_PASSWORD);
@@ -152,7 +163,46 @@ class AccountTest extends PHPUnit_Framework_TestCase
 
     /**
      * @depends testCreateResellerFromParameters
+     */
+    public function testListResellers()
+    {
+        $command = new \DirectAdminCommands\Account(DIRECTADMIN_URL, ADMIN_USERNAME, ADMIN_PASSWORD);
+        $result = $command->listResellers();
+        $this->assertContains(RESELLER_USERNAME, $result);
+    }
+
+    /**
+     */
+    public function testListAllAccounts()
+    {
+        $command = new \DirectAdminCommands\Account(DIRECTADMIN_URL, ADMIN_USERNAME, ADMIN_PASSWORD);
+        $result = $command->listAll();
+        $this->assertInternalType('array', $result);
+    }
+
+    /**
+     * @depends testCreateResellerFromParameters
+     * @expectedException \DirectAdminCommands\Exception\GenericException
+     */
+    public function testSuspendAccount()
+    {
+        $command = new \DirectAdminCommands\Account(DIRECTADMIN_URL, ADMIN_USERNAME, ADMIN_PASSWORD);
+        $command->suspend(RESELLER_USERNAME);
+    }
+
+    /**
+     * @depends testCreateResellerFromParameters
+     * @expectedException \DirectAdminCommands\Exception\GenericException
+     */
+    public function testResumeAccount()
+    {
+        $command = new \DirectAdminCommands\Account(DIRECTADMIN_URL, ADMIN_USERNAME, ADMIN_PASSWORD);
+        $command->resume(RESELLER_USERNAME);
+    }
+
+    /**
      * @depends testImpersonateReseller
+     * @depends testListResellers
      */
     public function testDeleteReseller()
     {
@@ -163,8 +213,10 @@ class AccountTest extends PHPUnit_Framework_TestCase
 
     /**
      * @depends testCreateAdmin
+     * @depends testImpersonateAdmin
+     * @depends testListAdministrators
      */
-    public function testDeleteAccounts()
+    public function testDeleteAdmin()
     {
         $command = new \DirectAdminCommands\Account(DIRECTADMIN_URL, MASTER_ADMIN_USERNAME, MASTER_ADMIN_PASSWORD);
         $result = $command->delete(ADMIN_USERNAME);

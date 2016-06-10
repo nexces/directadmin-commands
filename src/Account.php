@@ -260,6 +260,8 @@ class Account extends CommandAbstract
     }
 
     /**
+     * Defunct!
+     * 
      * @param string $username
      *
      * @return bool
@@ -284,6 +286,8 @@ class Account extends CommandAbstract
     }
 
     /**
+     * Defunct!
+     * 
      * @param string $username
      *
      * @return bool
