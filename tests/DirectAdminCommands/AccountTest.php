@@ -120,18 +120,25 @@ class AccountTest extends PHPUnit_Framework_TestCase
             false,
             TEST_RESELLER_DOMAIN,
             \DirectAdminCommands\ValueObject\ResellerAccountSpec::ACCOUNT_IP_SHARED,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
+            INF,
+            INF,
+            INF,
+            INF,
+            INF,
+            0,
+            INF,
+            INF,
+            INF,
+            INF,
+            INF,
+            INF,
+            INF,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
             false,
             false,
             false,
@@ -140,7 +147,7 @@ class AccountTest extends PHPUnit_Framework_TestCase
             false,
             false,
             \DirectAdminCommands\ValueObject\ResellerAccountSpec::CUSTOM_DNS_OFF,
-            false
+            true
         );
         $command = new \DirectAdminCommands\Account(DIRECTADMIN_URL, MASTER_ADMIN_USERNAME, MASTER_ADMIN_PASSWORD);
         $command->impersonate(ADMIN_USERNAME);
@@ -157,6 +164,46 @@ class AccountTest extends PHPUnit_Framework_TestCase
         $command->impersonate(RESELLER_USERNAME);
         $result = $command->loginTest();
         $this->assertTrue($result, 'Could not impersonate as reseller');
+    }
+
+    /**
+     * @depends testImpersonateReseller
+     */
+    public function testCreateUserFromParameters()
+    {
+        $userData = new \DirectAdminCommands\ValueObject\UserCustomAccountSpec(
+            USER_USERNAME,
+            TEST_EMAIL,
+            USER_PASSWORD,
+            false,
+            TEST_USER_DOMAIN,
+            'server',
+            INF,
+            INF,
+            INF,
+            INF,
+            INF,
+            INF,
+            INF,
+            INF,
+            INF,
+            INF,
+            INF,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+        );
+        $command = new \DirectAdminCommands\Account(DIRECTADMIN_URL, MASTER_ADMIN_USERNAME, MASTER_ADMIN_PASSWORD);
+        $command->impersonate(RESELLER_USERNAME);
+        $result = $command->create($userData);
+        $this->assertTrue($result);
     }
 
     /**
@@ -197,6 +244,17 @@ class AccountTest extends PHPUnit_Framework_TestCase
         $command = new \DirectAdminCommands\Account(DIRECTADMIN_URL, ADMIN_USERNAME, ADMIN_PASSWORD);
         $result = $command->resume(RESELLER_USERNAME);
         $this->assertTrue($result, 'Could not resume account');
+    }
+
+    /**
+     * @depends testCreateUserFromParameters
+     */
+    public function testDeleteUser()
+    {
+        $command = new \DirectAdminCommands\Account(DIRECTADMIN_URL, MASTER_ADMIN_USERNAME, MASTER_ADMIN_PASSWORD);
+        $command->impersonate(RESELLER_USERNAME);
+        $result = $command->delete(USER_USERNAME);
+        $this->assertTrue($result, 'Could not delete user account');
     }
 
     /**

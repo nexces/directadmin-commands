@@ -26,6 +26,10 @@ class ResellerCustomAccountSpec extends ResellerAccountSpec
     /**
      * @var integer
      */
+    protected $inodes;
+    /**
+     * @var integer
+     */
     protected $domains;
     /**
      * @var integer
@@ -70,11 +74,19 @@ class ResellerCustomAccountSpec extends ResellerAccountSpec
     /**
      * @var boolean
      */
+    protected $cgiEnabled;
+    /**
+     * @var boolean
+     */
     protected $phpEnabled;
     /**
      * @var boolean
      */
-    protected $cgiEnabled;
+    protected $spamScannerEnabled;
+    /**
+     * @var boolean
+     */
+    protected $catchAllCustomizationEnabled;
     /**
      * @var boolean
      */
@@ -90,6 +102,22 @@ class ResellerCustomAccountSpec extends ResellerAccountSpec
     /**
      * @var boolean
      */
+    protected $oversellEnabled;
+    /**
+     * @var boolean
+     */
+    protected $cronEnabled;
+    /**
+     * @var boolean
+     */
+    protected $systemInfoEnabled;
+    /**
+     * @var boolean
+     */
+    protected $loginKeysEnabled;
+    /**
+     * @var boolean
+     */
     protected $dnsControlEnabled;
     /**
      * @var string
@@ -98,7 +126,7 @@ class ResellerCustomAccountSpec extends ResellerAccountSpec
     /**
      * @var boolean
      */
-    protected $serverIpEnabled;
+    protected $shareServerIpEnabled;
 
     /**
      * ResellerCustomAccountSpec constructor.
@@ -111,6 +139,7 @@ class ResellerCustomAccountSpec extends ResellerAccountSpec
      * @param string  $ip
      * @param integer $bandwidth
      * @param integer $quota
+     * @param integer $inodes
      * @param integer $domains
      * @param integer $subDomains
      * @param integer $ips
@@ -122,14 +151,20 @@ class ResellerCustomAccountSpec extends ResellerAccountSpec
      * @param integer $domainPointers
      * @param integer $ftpAccounts
      * @param boolean $anonymousFtpEnabled
-     * @param boolean $phpEnabled
      * @param boolean $cgiEnabled
+     * @param boolean $phpEnabled
+     * @param boolean $spamScannerEnabled
+     * @param boolean $catchAllCustomizationEnabled
      * @param boolean $sslEnabled
      * @param boolean $sshEnabled
      * @param boolean $createUserSshEnabled
+     * @param boolean $oversellEnabled
+     * @param boolean $cronEnabled
+     * @param boolean $systemInfoEnabled
+     * @param boolean $loginKeysEnabled
      * @param boolean $dnsControlEnabled
      * @param string  $customDns
-     * @param boolean $serverIpEnabled
+     * @param boolean $shareServerIpEnabled
      */
     public function __construct(
         $username,
@@ -140,6 +175,7 @@ class ResellerCustomAccountSpec extends ResellerAccountSpec
         $ip,
         $bandwidth,
         $quota,
+        $inodes,
         $domains,
         $subDomains,
         $ips,
@@ -151,18 +187,25 @@ class ResellerCustomAccountSpec extends ResellerAccountSpec
         $domainPointers,
         $ftpAccounts,
         $anonymousFtpEnabled,
-        $phpEnabled,
         $cgiEnabled,
+        $phpEnabled,
+        $spamScannerEnabled,
+        $catchAllCustomizationEnabled,
         $sslEnabled,
         $sshEnabled,
         $createUserSshEnabled,
+        $oversellEnabled,
+        $cronEnabled,
+        $systemInfoEnabled,
+        $loginKeysEnabled,
         $dnsControlEnabled,
         $customDns,
-        $serverIpEnabled
+        $shareServerIpEnabled
     ) {
         parent::__construct($username, $email, $password, $notify, $domain, $ip);
         $this->bandwidth = $bandwidth;
         $this->quota = $quota;
+        $this->inodes = $inodes;
         $this->domains = $domains;
         $this->subDomains = $subDomains;
         $this->ips = $ips;
@@ -174,14 +217,21 @@ class ResellerCustomAccountSpec extends ResellerAccountSpec
         $this->domainPointers = $domainPointers;
         $this->ftpAccounts = $ftpAccounts;
         $this->anonymousFtpEnabled = $anonymousFtpEnabled;
-        $this->phpEnabled = $phpEnabled;
         $this->cgiEnabled = $cgiEnabled;
+        $this->phpEnabled = $phpEnabled;
+        $this->spamScannerEnabled = $spamScannerEnabled;
+        $this->catchAllCustomizationEnabled = $catchAllCustomizationEnabled;
         $this->sslEnabled = $sslEnabled;
         $this->sshEnabled = $sshEnabled;
         $this->createUserSshEnabled = $createUserSshEnabled;
+        $this->oversellEnabled = $oversellEnabled;
+        $this->cronEnabled = $cronEnabled;
+        $this->systemInfoEnabled = $systemInfoEnabled;
+        $this->loginKeysEnabled = $loginKeysEnabled;
         $this->dnsControlEnabled = $dnsControlEnabled;
         $this->customDns = $customDns;
-        $this->serverIpEnabled = $serverIpEnabled;
+        $this->shareServerIpEnabled = $shareServerIpEnabled;
+
     }
 
     /**
@@ -194,6 +244,8 @@ class ResellerCustomAccountSpec extends ResellerAccountSpec
         $params['ubandwidth'] = $this->bandwidth == INF ? 'ON' : 'OFF';
         $params['quota'] = $this->quota == INF ? 0 : $this->quota;
         $params['uquota'] = $this->quota == INF ? 'ON' : 'OFF';
+        $params['inodes'] = $this->inodes == INF ? 0 : $this->inodes;
+        $params['uinodes'] = $this->inodes == INF ? 'ON' : 'OFF';
         $params['vdomains'] = $this->domains == INF ? 0 : $this->domains;
         $params['uvdomains'] = $this->domains == INF ? 'ON' : 'OFF';
         $params['nsubdomains'] = $this->subDomains == INF ? 0 : $this->subDomains;
@@ -214,14 +266,20 @@ class ResellerCustomAccountSpec extends ResellerAccountSpec
         $params['ftp'] = $this->ftpAccounts == INF ? 0 : $this->ftpAccounts;
         $params['uftp'] = $this->ftpAccounts == INF ? 'ON' : 'OFF';
         $params['aftp'] = $this->anonymousFtpEnabled ? 'ON' : 'OFF';
-        $params['php'] = $this->phpEnabled ? 'ON' : 'OFF';
         $params['cgi'] = $this->cgiEnabled ? 'ON' : 'OFF';
+        $params['php'] = $this->phpEnabled ? 'ON' : 'OFF';
+        $params['span'] = $this->spamScannerEnabled ? 'ON' : 'OFF';
+        $params['catchall'] = $this->catchAllCustomizationEnabled ? 'ON' : 'OFF';
         $params['ssl'] = $this->sslEnabled ? 'ON' : 'OFF';
         $params['ssh'] = $this->sshEnabled ? 'ON' : 'OFF';
         $params['userssh'] = $this->createUserSshEnabled ? 'ON' : 'OFF';
+        $params['oversell'] = $this->oversellEnabled ? 'ON' : 'OFF';
+        $params['cron'] = $this->cronEnabled ? 'ON' : 'OFF';
+        $params['sysinfo'] = $this->systemInfoEnabled ? 'ON' : 'OFF';
+        $params['login_keys'] = $this->loginKeysEnabled ? 'ON' : 'OFF';
         $params['dnscontrol'] = $this->dnsControlEnabled ? 'ON' : 'OFF';
         $params['dns'] = $this->customDns;
-        $params['serverip'] = $this->serverIpEnabled ? 'ON' : 'OFF';
+        $params['serverip'] = $this->shareServerIpEnabled ? 'ON' : 'OFF';
         return $params;
     }
 }

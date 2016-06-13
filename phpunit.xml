@@ -17,7 +17,9 @@
 
     <testsuites>
         <testsuite name="DirectAdmin">
-            <directory>./tests/DirectAdminCommands/</directory>
+            <file>tests/DirectAdminCommands/AccountTest.php</file>
+            <file>tests/DirectAdminCommands/PackageTest.php</file>
+            <file>tests/DirectAdminCommands/CoreTest.php</file>
         </testsuite>
     </testsuites>
 
