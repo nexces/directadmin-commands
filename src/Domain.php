@@ -32,13 +32,13 @@ class Domain extends CommandAbstract
      * @throws \DirectAdminCommands\Exception\GenericException
      * @throws \DirectAdminCommands\Exception\MalformedRequestException
      */
-    public function create($domain, $bandwidth = -1, $quota = -1, $ssl = true, $cgi = true, $php = true)
+    public function create($domain, $bandwidth = INF, $quota = INF, $ssl = true, $cgi = true, $php = true)
     {
-        if (!is_int($bandwidth)) {
-            throw new \UnexpectedValueException('Bandwidth must be integer');
+        if ($bandwidth !== INF && !is_int($bandwidth)) {
+            throw new \UnexpectedValueException('Bandwidth must be integer or INF');
         }
-        if (!is_int($quota)) {
-            throw new \UnexpectedValueException('Quota must be integer');
+        if ($quota !== INF && !is_int($quota)) {
+            throw new \UnexpectedValueException('Quota must be integer or INF');
         }
         $this->command = 'CMD_API_DOMAIN';
 
@@ -49,12 +49,12 @@ class Domain extends CommandAbstract
             'cgi'    => $cgi ? 'ON' : 'OFF',
             'php'    => $php ? 'ON' : 'OFF'
         ];
-        if ($bandwidth > -1) {
+        if ($bandwidth !== INF) {
             $params['bandwidth'] = $bandwidth;
         } else {
             $params['ubandwidth'] = 'unlimited';
         }
-        if ($quota > -1) {
+        if ($quota !== INF) {
             $params['quota'] = $quota;
         } else {
             $params['uquota'] = 'unlimited';
@@ -80,15 +80,15 @@ class Domain extends CommandAbstract
      * @throws \DirectAdminCommands\Exception\GenericException
      * @throws \DirectAdminCommands\Exception\MalformedRequestException
      */
-    public function modify($domain, $bandwidth = -1, $quota = -1, $ssl = true, $cgi = true, $php = true)
+    public function modify($domain, $bandwidth = INF, $quota = INF, $ssl = true, $cgi = true, $php = true)
     {
         $this->command = 'CMD_API_DOMAIN';
 
-        if (!is_int($bandwidth)) {
-            throw new \UnexpectedValueException('Bandwidth must be integer');
+        if ($bandwidth !== INF && !is_int($bandwidth)) {
+            throw new \UnexpectedValueException('Bandwidth must be integer or INF');
         }
-        if (!is_int($quota)) {
-            throw new \UnexpectedValueException('Quota must be integer');
+        if ($quota !== INF && !is_int($quota)) {
+            throw new \UnexpectedValueException('Quota must be integer or INF');
         }
         $params = [
             'action' => 'modify',
@@ -97,12 +97,12 @@ class Domain extends CommandAbstract
             'cgi'    => $cgi ? 'ON' : 'OFF',
             'php'    => $php ? 'ON' : 'OFF'
         ];
-        if ($bandwidth > -1) {
+        if ($bandwidth !== INF) {
             $params['bandwidth'] = $bandwidth;
         } else {
             $params['ubandwidth'] = 'unlimited';
         }
-        if ($quota > -1) {
+        if ($quota !== INF) {
             $params['quota'] = $quota;
         } else {
             $params['uquota'] = 'unlimited';
