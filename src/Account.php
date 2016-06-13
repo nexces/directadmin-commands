@@ -9,7 +9,6 @@
 namespace DirectAdminCommands;
 
 use DirectAdminCommands\Exception\BadCredentialsException;
-use DirectAdminCommands\Exception\GenericException;
 use DirectAdminCommands\ValueObject\AccountSpec;
 use DirectAdminCommands\ValueObject\AdminAccountSpec;
 use DirectAdminCommands\ValueObject\ResellerAccountSpec;
@@ -130,12 +129,7 @@ class Account extends CommandAbstract
                 'user' => $accountName
             ]
         );
-        $bodyContents = $this->response->getBody()->getContents();
-        $data = [];
-        parse_str($this->decodeResponse($bodyContents), $data);
-        if (!array_key_exists('exists', $data)) {
-            throw new GenericException('Malformed response', 0, null, $this->response, $bodyContents, $data);
-        }
+        $data = $this->getParsedResponse();
 
         return $data['exists'] == 1;
     }
@@ -160,15 +154,10 @@ class Account extends CommandAbstract
             $params['user'] = $username;
         }
         $this->send($params);
-        $bodyContents = $this->response->getBody()->getContents();
-        $data = [];
-        parse_str($this->decodeResponse($bodyContents), $data);
+        $data = $this->getParsedResponse();
         if (array_key_exists('usage', $data)) {
-            $usage = [];
-            parse_str($data['usage'], $usage);
-            $data['usage'] = $usage;
+            parse_str($data['usage'], $data['usage']);
         }
-
         return $data;
     }
 
@@ -188,10 +177,7 @@ class Account extends CommandAbstract
             $params['reseller'] = $reseller;
         }
         $this->send($params);
-        $data = [];
-        $bodyContents = $this->response->getBody()->getContents();
-        $bodyContents = $this->decodeResponse($bodyContents);
-        parse_str($bodyContents, $data);
+        $data = $this->getParsedResponse();
         if (array_key_exists('list', $data)) {
             $data = $data['list'];
         }
@@ -208,10 +194,7 @@ class Account extends CommandAbstract
     {
         $this->command = 'CMD_API_SHOW_ALL_USERS';
         $this->send();
-        $data = [];
-        $bodyContents = $this->response->getBody()->getContents();
-        $bodyContents = $this->decodeResponse($bodyContents);
-        parse_str($bodyContents, $data);
+        $data = $this->getParsedResponse();
         if (array_key_exists('list', $data)) {
             $data = $data['list'];
         }
@@ -228,10 +211,7 @@ class Account extends CommandAbstract
     {
         $this->command = 'CMD_API_SHOW_RESELLERS';
         $this->send();
-        $data = [];
-        $bodyContents = $this->response->getBody()->getContents();
-        $bodyContents = $this->decodeResponse($bodyContents);
-        parse_str($bodyContents, $data);
+        $data = $this->getParsedResponse();
         if (array_key_exists('list', $data)) {
             $data = $data['list'];
         }
@@ -248,10 +228,7 @@ class Account extends CommandAbstract
     {
         $this->command = 'CMD_API_SHOW_ADMINS';
         $this->send();
-        $data = [];
-        $bodyContents = $this->response->getBody()->getContents();
-        $bodyContents = $this->decodeResponse($bodyContents);
-        parse_str($bodyContents, $data);
+        $data = $this->getParsedResponse();
         if (array_key_exists('list', $data)) {
             $data = $data['list'];
         }
@@ -277,7 +254,8 @@ class Account extends CommandAbstract
             [
                 'location' => 'CMD_SELECT_USERS', // <- seriously????!! O.o
                 'dosuspend' => 'yes',
-                'select0' => $username
+                'select0' => $username,
+                'reason' => 'none'
             ]
         );
         $this->validateResponse();

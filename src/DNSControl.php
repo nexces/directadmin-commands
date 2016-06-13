@@ -238,9 +238,7 @@ class DNSControl extends CommandAbstract
             ]
         );
         $this->validateResponse();
-        $bodyContents = $this->response->getBody()->getContents();
-        $data = [];
-        parse_str($this->decodeResponse($bodyContents), $data);
+        $data = $this->getParsedResponse();
         return $data['exists'] === "1";
     }
 

@@ -181,11 +181,7 @@ class Domain extends CommandAbstract
         $this->send([]);
         $this->validateResponse();
 
-        $data = [];
-        $bodyContents = $this->response->getBody()
-            ->getContents();
-        $bodyContents = $this->decodeResponse($bodyContents);
-        parse_str($bodyContents, $data);
+        $data = $this->getParsedResponse();
 
         return $data['list'];
     }
@@ -208,11 +204,7 @@ class Domain extends CommandAbstract
     {
         $this->command = 'CMD_API_DOMAIN_OWNERS';
         $this->send([]);
-        $data = [];
-        $bodyContents = $this->response->getBody()
-            ->getContents();
-        $bodyContents = $this->decodeResponse($bodyContents);
-        parse_str($bodyContents, $data);
+        $data = $this->getParsedResponse();
         $fixedDomains = [];
         foreach ($data as $key => $value) {
             $fixedDomains[str_replace('_', '.', $key)] = $value;
@@ -248,11 +240,7 @@ class Domain extends CommandAbstract
             'domain' => $domain
         ];
         $this->send($params);
-        $data = [];
-        $bodyContents = $this->response->getBody()
-            ->getContents();
-        $bodyContents = $this->decodeResponse($bodyContents);
-        parse_str($bodyContents, $data);
+        $data = $this->getParsedResponse();
         $fixedDomains = [];
         foreach ($data as $key => $value) {
             $fixedDomains[str_replace('_', '.', $key)] = $value;

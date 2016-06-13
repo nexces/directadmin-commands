@@ -109,27 +109,27 @@ class UserCustomAccountSpec extends UserAccountSpec
      * @param boolean $notify
      * @param string  $domain
      * @param string  $ip
-     * @param int     $bandwidth
-     * @param int     $quota
-     * @param int     $domains
-     * @param int     $subDomains
-     * @param int     $emails
-     * @param int     $emailForwarders
-     * @param int     $mailingLists
-     * @param int     $autoResponders
-     * @param int     $mysqlDatabases
-     * @param int     $domainPointers
-     * @param int     $ftpAccounts
-     * @param bool    $anonymousFtpEnabled
-     * @param bool    $phpEnabled
-     * @param bool    $cgiEnabled
-     * @param bool    $spamScannerEnabled
-     * @param bool    $cronEnabled
-     * @param bool    $catchAllCustomizationEnabled
-     * @param bool    $sslEnabled
-     * @param bool    $sshEnabled
-     * @param bool    $systemInfoEnabled
-     * @param bool    $dnsControlEnabled
+     * @param integer $bandwidth
+     * @param integer $quota
+     * @param integer $domains
+     * @param integer $subDomains
+     * @param integer $emails
+     * @param integer $emailForwarders
+     * @param integer $mailingLists
+     * @param integer $autoResponders
+     * @param integer $mysqlDatabases
+     * @param integer $domainPointers
+     * @param integer $ftpAccounts
+     * @param boolean $anonymousFtpEnabled
+     * @param boolean $phpEnabled
+     * @param boolean $cgiEnabled
+     * @param boolean $spamScannerEnabled
+     * @param boolean $cronEnabled
+     * @param boolean $catchAllCustomizationEnabled
+     * @param boolean $sslEnabled
+     * @param boolean $sshEnabled
+     * @param boolean $systemInfoEnabled
+     * @param boolean $dnsControlEnabled
      */
     public function __construct(
         $username,
@@ -190,28 +190,28 @@ class UserCustomAccountSpec extends UserAccountSpec
     public function toArray()
     {
         $params = parent::toArray();
-        $params['bandwidth'] = $this->bandwidth < 0 ? 0 : $this->bandwidth;
-        $params['ubandwidth'] = $this->bandwidth < 0 ? 'ON' : 'OFF';
-        $params['quota'] = $this->quota < 0 ? 0 : $this->quota;
-        $params['uquota'] = $this->quota < 0 ? 'ON' : 'OFF';
-        $params['vdomains'] = $this->domains < 0 ? 0 : $this->domains;
-        $params['uvdomains'] = $this->domains < 0 ? 'ON' : 'OFF';
-        $params['nsubdomains'] = $this->subDomains < 0 ? 0 : $this->subDomains;
-        $params['unsubdomains'] = $this->subDomains < 0 ? 'ON' : 'OFF';
-        $params['nemails'] = $this->emails < 0 ? 0 : $this->emails;
-        $params['unemails'] = $this->emails < 0 ? 'ON' : 'OFF';
-        $params['nemailf'] = $this->emailForwarders < 0 ? 0 : $this->emailForwarders;
-        $params['unemailf'] = $this->emailForwarders < 0 ? 'ON' : 'OFF';
-        $params['nemailml'] = $this->mailingLists < 0 ? 0 : $this->mailingLists;
-        $params['unemailml'] = $this->mailingLists < 0 ? 'ON' : 'OFF';
-        $params['nemailr'] = $this->autoResponders < 0 ? 0 : $this->autoResponders;
-        $params['unemailr'] = $this->autoResponders < 0 ? 'ON' : 'OFF';
-        $params['mysql'] = $this->mysqlDatabases < 0 ? 0 : $this->mysqlDatabases;
-        $params['umysql'] = $this->mysqlDatabases < 0 ? 'ON' : 'OFF';
-        $params['domainptr'] = $this->domainPointers < 0 ? 0 : $this->domainPointers;
-        $params['udomainptr'] = $this->domainPointers < 0 ? 'ON' : 'OFF';
-        $params['ftp'] = $this->ftpAccounts < 0 ? 0 : $this->ftpAccounts;
-        $params['uftp'] = $this->ftpAccounts < 0 ? 'ON' : 'OFF';
+        $params['bandwidth'] = $this->bandwidth == INF ? 0 : $this->bandwidth;
+        $params['ubandwidth'] = $this->bandwidth == INF ? 'ON' : 'OFF';
+        $params['quota'] = $this->quota == INF ? 0 : $this->quota;
+        $params['uquota'] = $this->quota == INF ? 'ON' : 'OFF';
+        $params['vdomains'] = $this->domains == INF ? 0 : $this->domains;
+        $params['uvdomains'] = $this->domains == INF ? 'ON' : 'OFF';
+        $params['nsubdomains'] = $this->subDomains == INF ? 0 : $this->subDomains;
+        $params['unsubdomains'] = $this->subDomains == INF ? 'ON' : 'OFF';
+        $params['nemails'] = $this->emails == INF ? 0 : $this->emails;
+        $params['unemails'] = $this->emails == INF ? 'ON' : 'OFF';
+        $params['nemailf'] = $this->emailForwarders == INF ? 0 : $this->emailForwarders;
+        $params['unemailf'] = $this->emailForwarders == INF ? 'ON' : 'OFF';
+        $params['nemailml'] = $this->mailingLists == INF ? 0 : $this->mailingLists;
+        $params['unemailml'] = $this->mailingLists == INF ? 'ON' : 'OFF';
+        $params['nemailr'] = $this->autoResponders == INF ? 0 : $this->autoResponders;
+        $params['unemailr'] = $this->autoResponders == INF ? 'ON' : 'OFF';
+        $params['mysql'] = $this->mysqlDatabases == INF ? 0 : $this->mysqlDatabases;
+        $params['umysql'] = $this->mysqlDatabases == INF ? 'ON' : 'OFF';
+        $params['domainptr'] = $this->domainPointers == INF ? 0 : $this->domainPointers;
+        $params['udomainptr'] = $this->domainPointers == INF ? 'ON' : 'OFF';
+        $params['ftp'] = $this->ftpAccounts == INF ? 0 : $this->ftpAccounts;
+        $params['uftp'] = $this->ftpAccounts == INF ? 'ON' : 'OFF';
         $params['aftp'] = $this->anonymousFtpEnabled ? 'ON' : 'OFF';
         $params['php'] = $this->phpEnabled ? 'ON' : 'OFF';
         $params['cgi'] = $this->cgiEnabled ? 'ON' : 'OFF';

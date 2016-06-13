@@ -40,10 +40,7 @@ class Core extends CommandAbstract
         $this->command = 'CMD_API_SYSTEM_INFO';
         $this->send();
         $this->validateResponse();
-        $bodyContents = $this->response->getBody()->getContents();
-        $bodyContents = $this->decodeResponse($bodyContents);
-        $data = [];
-        parse_str($bodyContents, $data);
+        $data = $this->getParsedResponse();
         $i = -1;
         while (array_key_exists(++$i, $data)) {
             $cpuInfo = [];

@@ -184,4 +184,22 @@ abstract class CommandAbstract
 
         return $string;
     }
+
+    /**
+     * Returns parsed API response
+     * 
+     * @return array
+     */
+    protected function getParsedResponse()
+    {
+        $body = $this->response->getBody();
+        $body->seek(0);
+        $bodyContents = $body->getContents();
+        $body->seek(0);
+        $bodyContents = $this->decodeResponse($bodyContents);
+        $data = [];
+        parse_str($bodyContents, $data);
+        
+        return $data;
+    }
 }
