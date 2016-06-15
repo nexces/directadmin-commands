@@ -16,6 +16,13 @@ namespace DirectAdminCommands\ValueObject;
 abstract class UserAccountSpec extends AccountSpec
 {
     /**
+     * https://www.directadmin.com/features.php?id=1500
+     */
+    const ACCOUNT_IP_SERVER = 'server';
+    const ACCOUNT_IP_SHARED = 'shared';
+    const ACCOUNT_IP_ASSIGN = 'assign';
+
+    /**
      * @var string
      */
     protected $domain;
@@ -32,7 +39,7 @@ abstract class UserAccountSpec extends AccountSpec
      * @param string  $password
      * @param boolean $notify
      * @param string  $domain
-     * @param string  $ip
+     * @param string  $ip Can use ACCOUNT_IP_ constants instead of actual IP
      */
     public function __construct($username, $email, $password, $notify, $domain, $ip)
     {
