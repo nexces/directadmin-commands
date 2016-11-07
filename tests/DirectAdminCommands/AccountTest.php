@@ -280,4 +280,11 @@ class AccountTest extends PHPUnit_Framework_TestCase
         $result = $command->delete(ADMIN_USERNAME);
         $this->assertTrue($result, 'Could not delete admin account: ' . ADMIN_USERNAME);
     }
+
+    public function testCheckSystemAccount()
+    {
+        $command = new \DirectAdminCommands\Account(DIRECTADMIN_URL, MASTER_ADMIN_USERNAME, MASTER_ADMIN_PASSWORD);
+        $result = $command->exists('apache');
+        $this->assertTrue($result, 'Could not verify "apache" account existence');
+    }
 }

@@ -130,7 +130,7 @@ abstract class CommandAbstract
      */
     protected function validateResponse()
     {
-        if ($this->response->getHeader('Content-Type') === 'text/html' 
+        if ($this->response->getHeader('Content-Type') === 'text/html'
             && $this->response->getHeader('X-DirectAdmin') === 'unauthorized'
         ) {
             throw new BadCredentialsException(
@@ -155,6 +155,7 @@ abstract class CommandAbstract
         ) {
             $data = [];
             parse_str($this->decodeResponse($bodyContents), $data);
+            $body->seek(0);
             throw new Exception\GenericException(
                 'Unknown error! ' . $bodyContents,
                 0,
@@ -164,7 +165,6 @@ abstract class CommandAbstract
                 $data
             );
         }
-        $body->seek(0);
     }
 
     /**
@@ -187,7 +187,7 @@ abstract class CommandAbstract
 
     /**
      * Returns parsed API response
-     * 
+     *
      * @return array
      */
     protected function getParsedResponse()
@@ -199,7 +199,7 @@ abstract class CommandAbstract
         $bodyContents = $this->decodeResponse($bodyContents);
         $data = [];
         parse_str($bodyContents, $data);
-        
+
         return $data;
     }
 }

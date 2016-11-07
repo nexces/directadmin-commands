@@ -9,6 +9,7 @@
 namespace DirectAdminCommands;
 
 use DirectAdminCommands\Exception\BadCredentialsException;
+use DirectAdminCommands\Exception\GenericException;
 use DirectAdminCommands\ValueObject\AccountSpec;
 use DirectAdminCommands\ValueObject\AdminAccountSpec;
 use DirectAdminCommands\ValueObject\ResellerAccountSpec;
@@ -124,11 +125,21 @@ class Account extends CommandAbstract
     public function exists($accountName)
     {
         $this->command = 'CMD_API_USER_EXISTS';
-        $this->send(
-            [
-                'user' => $accountName
-            ]
-        );
+        try {
+            $this->send(
+                [
+                    'user' => $accountName
+                ]
+            );
+        } catch (GenericException $e) {
+            $data = $this->getParsedResponse();
+            if ($data['error'] == 1 && $data['text'] === 'reserved username') {
+                // for reserved accounts return information that account exists
+                return true;
+            } else {
+                throw $e;
+            }
+        }
         $data = $this->getParsedResponse();
 
         return $data['exists'] == 1;
@@ -238,7 +249,7 @@ class Account extends CommandAbstract
 
     /**
      * Defunct!
-     * 
+     *
      * @param string $username
      *
      * @return bool
@@ -265,7 +276,7 @@ class Account extends CommandAbstract
 
     /**
      * Defunct!
-     * 
+     *
      * @param string $username
      *
      * @return bool
