@@ -299,4 +299,31 @@ class Account extends CommandAbstract
 
         return true;
     }
+
+    /**
+     * @param $username
+     * @param $bandwidth
+     * @return bool
+     * @throws BadCredentialsException
+     * @throws Exception\MalformedRequestException
+     * @throws GenericException
+     * @throws \Exception
+     */
+    public function addTemporaryBandwidth($username, $bandwidth)
+    {
+        $this->command = 'CMD_API_MODIFY_USER';
+        $this->method = 'POST';
+        $this->send(
+            [
+                'additional_bandwidth' => $bandwidth,
+                'additional_bw' => 'anything',
+                'action' => 'single',
+                'user' => $username
+            ]
+        );
+        $this->validateResponse();
+
+        return true;
+    }
 }
+
