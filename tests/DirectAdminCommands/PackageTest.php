@@ -8,12 +8,14 @@
 
 namespace DirectAdminCommands;
 
+use PHPUnit\Framework\TestCase;
+
 /**
  * Class PackageTest
  *
  * @package DirectAdminCommands
  */
-class PackageTest extends \PHPUnit_Framework_TestCase
+class PackageTest extends TestCase
 {
     public function testCreateResellerPackage()
     {
@@ -34,7 +36,7 @@ class PackageTest extends \PHPUnit_Framework_TestCase
     {
         $command = new Package(DIRECTADMIN_URL, MASTER_ADMIN_USERNAME, MASTER_ADMIN_PASSWORD);
         $result = $command->get(new ValueObject\ResellerPackageSpec('testresellerpackage'));
-        $this->assertInternalType('array', $result);
+        $this->assertIsArray($result);
         $this->assertArrayHasKey('bandwidth', $result);
         $this->assertEquals('unlimited', $result['bandwidth']);
         $this->assertArrayHasKey('quota', $result);

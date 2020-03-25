@@ -8,10 +8,13 @@
 
 namespace DirectAdminCommands;
 
+use BadMethodCallException;
 use DirectAdminCommands\Exception\BadCredentialsException;
+use DirectAdminCommands\Exception\GenericException;
 use DirectAdminCommands\Exception\MalformedRequestException;
+use Exception;
 use GuzzleHttp\Client;
-use GuzzleHttp\Message\ResponseInterface;
+use GuzzleHttp\Psr7\Response;
 
 /**
  * Class CommandAbstract
@@ -21,12 +24,12 @@ use GuzzleHttp\Message\ResponseInterface;
 abstract class CommandAbstract
 {
     /**
-     * @var \GuzzleHttp\Client
+     * @var Client
      */
     protected $client;
 
     /**
-     * @var ResponseInterface
+     * @var Response
      */
     protected $response;
 
@@ -63,19 +66,7 @@ abstract class CommandAbstract
         $this->adminPassword = $adminPassword;
         $this->clientName = $clientName;
 
-        $this->client = new Client(
-            [
-                'base_url' => ($this->url),
-                'timeout'  => 2.0,
-                'defaults' => [
-                    'verify' => false,
-                    'auth'   => [
-                        $clientName ? join('|', [$adminName, $clientName]) : $adminName,
-                        $adminPassword
-                    ]
-                ],
-            ]
-        );
+        $this->client = $this->getClient();
 
         return $this;
     }
@@ -88,13 +79,7 @@ abstract class CommandAbstract
     public function impersonate($clientName)
     {
         $this->clientName = $clientName;
-        $this->client->setDefaultOption(
-            'auth',
-            [
-                $clientName ? join('|', [$this->adminName, $clientName]) : $this->adminName,
-                $this->adminPassword
-            ]
-        );
+        $this->client = $this->getClient();
 
         return $this;
     }
@@ -102,36 +87,39 @@ abstract class CommandAbstract
     /**
      * @param array $params
      *
-     * @throws \DirectAdminCommands\Exception\BadCredentialsException
-     * @throws \DirectAdminCommands\Exception\GenericException
-     * @throws \DirectAdminCommands\Exception\MalformedRequestException
+     * @throws BadCredentialsException
+     * @throws GenericException
+     * @throws MalformedRequestException
      */
     public function send(array $params = [])
     {
         $this->response = null;
         if (!$this->command) {
-            throw new \BadMethodCallException('No command specified');
+            throw new BadMethodCallException('No command specified');
         }
-        $this->response = $this->client->send(
-            $this->client->createRequest(
-                $this->method,
-                '/' . $this->command,
-                [
-                    'query' => $params
+
+        $this->response = $this->client->request(
+            $this->method,
+            '/' . $this->command,
+            [
+                'query' => $params,
+                'auth'   => [
+                    $this->clientName ? join('|', [$this->adminName, $this->clientName]) : $this->adminName,
+                    $this->adminPassword
                 ]
-            )
-        );
+            ]);
 
         $this->validateResponse();
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     protected function validateResponse()
     {
-        if ($this->response->getHeader('Content-Type') === 'text/html'
-            && $this->response->getHeader('X-DirectAdmin') === 'unauthorized'
+        $contentType = $this->response->getHeaderLine('Content-Type');
+        if ($contentType === 'text/html'
+            && strtolower($this->response->getHeaderLine('X-DirectAdmin')) === 'unauthorized'
         ) {
             throw new BadCredentialsException(
                 sprintf(
@@ -142,7 +130,7 @@ abstract class CommandAbstract
             );
         }
 
-        if ($this->response->getHeader('Content-Type') !== 'text/plain') {
+        if ($contentType !== 'text/plain') {
             throw new MalformedRequestException('We\'re not talking to API!', 0, null, $this->response);
         }
         $body = $this->response->getBody();
@@ -156,7 +144,7 @@ abstract class CommandAbstract
             $data = [];
             parse_str($this->decodeResponse($bodyContents), $data);
             $body->seek(0);
-            throw new Exception\GenericException(
+            throw new GenericException(
                 'Unknown error! ' . $bodyContents,
                 0,
                 null,
@@ -201,5 +189,19 @@ abstract class CommandAbstract
         parse_str($bodyContents, $data);
 
         return $data;
+    }
+
+    /**
+     * @return Client
+     */
+    private function getClient(): Client
+    {
+        return new Client(
+            [
+                'base_uri' => ($this->url),
+                'timeout'  => 20.0,
+
+            ]
+        );
     }
 }

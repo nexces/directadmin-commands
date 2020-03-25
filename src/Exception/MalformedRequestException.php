@@ -9,19 +9,19 @@
 namespace DirectAdminCommands\Exception;
 
 use Exception;
-use GuzzleHttp\Message\ResponseInterface;
+use GuzzleHttp\Psr7\Response;
 
 /**
  * Class MalformedRequestException
  *
  * @package DirectAdminCommands\Exception
  */
-class MalformedRequestException extends \Exception
+class MalformedRequestException extends Exception
 {
     private $response = null;
 
     /**
-     * @return \GuzzleHttp\Message\ResponseInterface|null
+     * @return Response|null
      */
     public function getResponse()
     {
@@ -33,10 +33,10 @@ class MalformedRequestException extends \Exception
      *
      * @param string                                     $message
      * @param int                                        $code
-     * @param \Exception|null                            $previous
-     * @param \GuzzleHttp\Message\ResponseInterface|null $response
+     * @param Exception|null                            $previous
+     * @param Response|null $response
      */
-    public function __construct($message = '', $code = 0, \Exception $previous = null, ResponseInterface $response = null)
+    public function __construct($message = '', $code = 0, Exception $previous = null, Response $response = null)
     {
         parent::__construct($message, $code, $previous);
         $this->response = $response;
